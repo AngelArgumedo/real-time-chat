@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat App</title>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #444;
+    }
+    #chat-container {
+      width: 50%;
+      margin: 0 auto;
+      padding: 10px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    input {
+      width: 80%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    button {
+      width: 18%;
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #chat {
+      height: 200px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      padding: 5px;
+      border-radius: 4px;
+      background: #fafafa;
+    }
+    #users {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .message {
+      margin: 5px 0;
+      padding: 5px;
+      background-color: #e9ecef;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chat en Tiempo Real</h1>
+  <div id="chat-container">
+    <div id="chat"></div>
+    <input id="message" placeholder="Escribe un mensaje..." />
+    <button onclick="sendMessage()">Enviar</button>
+    <div id="users">Usuarios conectados: 0</div>
+  </div>
+
+  <script>
+    const socket = io('http://localhost:3000'); // Conexión con el backend
+
+    // Mostrar número de usuarios conectados
+    socket.on('users', (count) => {
+      document.getElementById('users').innerText = `Usuarios conectados: ${count}`;
+    });
+
+    // Mostrar mensajes recibidos
+    socket.on('message', (msg) => {
+      const chat = document.getElementById('chat');
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      messageElement.innerText = msg;
+      chat.appendChild(messageElement);
+
+      // Desplazar al último mensaje
+      chat.scrollTop = chat.scrollHeight;
+    });
+
+    // Enviar mensajes
+    function sendMessage() {
+      const message = document.getElementById('message').value.trim();
+      if (message) {
+        socket.emit('message', message);
+        document.getElementById('message').value = '';
+      }
+    }
+  </script>
+</body>
+</html>
